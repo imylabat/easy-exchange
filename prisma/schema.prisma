@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum ListingCondition {
+  new
+  like_new
+  good
+  fair
+}
+
+enum ListingStatus {
+  available
+  requested
+  exchanged
+  unpublished
+}
+
+enum RequestStatus {
+  pending
+  accepted
+  declined
+  completed
+  cancelled
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  displayName  String
+  createdAt    DateTime @default(now())
+
+  listings Listing[]          @relation("ListingOwner")
+  requests ExchangeRequest[]  @relation("RequestRequester")
+}
+
+model Listing {
+  id            String            @id @default(cuid())
+  ownerId       String
+  title         String
+  author        String
+  courseCode    String?
+  condition     ListingCondition
+  notes         String?
+  coverImageUrl String?
+  status        ListingStatus     @default(available)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  owner    User              @relation("ListingOwner", fields: [ownerId], references: [id])
+  requests ExchangeRequest[]
+
+  @@index([ownerId])
+  @@index([status])
+}
+
+model ExchangeRequest {
+  id          String        @id @default(cuid())
+  listingId   String
+  requesterId String
+  pickupNote  String?
+  status      RequestStatus @default(pending)
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  listing   Listing @relation(fields: [listingId], references: [id])
+  requester User    @relation("RequestRequester", fields: [requesterId], references: [id])
+
+  @@index([listingId])
+  @@index([requesterId])
+  @@index([status])
+}
