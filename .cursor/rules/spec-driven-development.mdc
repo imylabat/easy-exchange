@@ -1,0 +1,38 @@
+---
+description: Treat specs/ as the source of truth; read them before implementing or changing behavior.
+alwaysApply: true
+---
+
+# Spec-driven development
+
+`specs/` is the source of truth for product, requirements, architecture, data model, user flows, UI, and testing.
+
+## Before implementing or changing behavior
+
+1. Read the relevant files in `specs/` for the slice (at minimum `specs/product.md` plus the spec that owns the change).
+2. Implement only what those specs allow. Do not invent extra features.
+
+## Spec index
+
+- `specs/product.md` — MVP scope and exclusion list
+- `specs/requirements.md` — user stories, FRs, NFRs
+- `specs/architecture.md` — stack, modules, implementation order
+- `specs/data-model.md` — entities and request state machine
+- `specs/user-flows.md` — expected flows
+- `specs/ui.md` — pages and components
+- `specs/testing.md` — what to test
+
+## Conflicts and requirement changes
+
+If a request conflicts with the specs, **state the conflict and stop** before changing code or expanding scope.
+
+If a genuine requirement change is needed, **update the relevant spec first**, then implement.
+
+## Request state machine
+
+Keep request transitions, permissions, and listing-status side effects in **one domain module**, matching `specs/data-model.md` and `specs/architecture.md`. Do not reimplement those rules in UI-only code.
+
+```text
+❌ BAD: add in-app chat because a prompt asked for messaging
+✅ GOOD: refuse; specs/product.md excludes chat — confirm a spec update first
+```
